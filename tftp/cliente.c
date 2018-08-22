@@ -44,7 +44,11 @@ int main(){
 				exit(1);
 			}
 			else{
-				perror("\nExito al enviar");
+				printf(" esperando respuesta\n");
+				if(recvfrom(udp_socket,mensaje,512,MSG_DONTWAIT,(struct sockaddr*)&remota,sizeof(remota))!=-1){
+					printf("mensaje recibido \n \n");
+					printf(" mensaje \n");
+				}
 			}
 
 		}

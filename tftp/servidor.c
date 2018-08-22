@@ -24,7 +24,9 @@
    }
  else
    {
+
     perror("\nExito al abrir el socket");
+    while(1){
     local.sin_family=AF_INET;
     local.sin_port=htons(8000);
     local.sin_addr.s_addr=INADDR_ANY;
@@ -40,27 +42,35 @@
        lrecv=sizeof(remota);
        while(mtime<100000){
 
-         	tam=recvfrom(udp_socket,mensaje,512,MSG_DONTWAIT,(struct sockaddr*)&remota,&lrecv);
+          tam=recvfrom(udp_socket,mensaje,512,MSG_DONTWAIT,(struct sockaddr*)&remota,&lrecv);
            if(tam!=-1)
             {
 
              //printf("\nExito al enviar");   
              printf("Mensaje recibido \n \n %s\n",mensaje );
+             printf("ip recibida %s \n \n ",inet_ntoa(remota.sin_addr));
+             if(sendto(udp_socket,"hola prro",20,0,(struct sockaddr*)&remota,sizeof(remota))!=-1)
+             {
+              printf("Envie un mensaje ALV \n");
+             }
              bandera= 1 ;
             
             }
-      		  gettimeofday(&end, NULL);
-          	seconds  = end.tv_sec  - start.tv_sec;
-          	useconds = end.tv_usec - start.tv_usec;
-          	mtime = ((seconds) * 1000 + useconds/1000.0) + 0.5;
-          	
+            gettimeofday(&end, NULL);
+            seconds  = end.tv_sec  - start.tv_sec;
+            useconds = end.tv_usec - start.tv_usec;
+            mtime = ((seconds) * 1000 + useconds/1000.0) + 0.5;
+            
             if(bandera){
               break;
             }
-    	   }
+         }
          printf(" %ld millisegundos transcurridos\n", mtime); 
          
       }
+
+    }
+    
    }
  
  close(udp_socket);
