@@ -26,7 +26,7 @@
    {
 
     perror("\nExito al abrir el socket");
-    while(1){
+    
     local.sin_family=AF_INET;
     local.sin_port=htons(8000);
     local.sin_addr.s_addr=INADDR_ANY;
@@ -38,6 +38,7 @@
       }
     else
       {
+      while(1){
        printf(" Exito en bind \n");
        lrecv=sizeof(remota);
        while(mtime<100000){
@@ -49,6 +50,7 @@
              //printf("\nExito al enviar");   
              printf("Mensaje recibido \n \n %s\n",mensaje );
              printf("ip recibida %s \n \n ",inet_ntoa(remota.sin_addr));
+             printf(" %ld millisegundos transcurridos\n", mtime); 
              if(sendto(udp_socket,"hola prro",20,0,(struct sockaddr*)&remota,sizeof(remota))!=-1)
              {
               printf("Envie un mensaje ALV \n");
@@ -62,16 +64,16 @@
             mtime = ((seconds) * 1000 + useconds/1000.0) + 0.5;
             
             if(bandera){
+              bandera = 0;
               break;
             }
-         }
-         printf(" %ld millisegundos transcurridos\n", mtime); 
-         
       }
+
 
     }
     
    }
+ }
  
  close(udp_socket);
  return 0;
