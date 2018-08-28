@@ -1,4 +1,7 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 using namespace std;
 
 
@@ -16,7 +19,7 @@ class tftp
 	public:
 	short codigoOP;
     unsigned char *nombreArchivo;
-    unsigned char *DATA;
+    unsigned char *DATA[512];
 	int modo;
 	short secuencia;
 	unsigned char *mensaje;
@@ -29,7 +32,7 @@ class tftp
 	void ACK(unsigned char* trama);
 	void RRQ(unsigned char* trama);
 	void WRQ(unsigned char* trama);
-	void DATA(unsigned char* trama);
+	void setDATA(unsigned char* trama);
 	void ERROR(unsigned char* trama);
     int formatoACK (unsigned char* trama);
 	int formatoRRQ(unsigned char * trama);
@@ -62,7 +65,7 @@ void tftp::ERROR(unsigned char *trama){
 	this->codigoError <<=8;
 	this->codigoError += trama[3];
 
-	strcpy(this->mensaje, trama+4);
+	strcpy((char* )this->mensaje, (const char *) trama+4);
 	printf("%s ", this->mensaje);
 }
 void tftp::ACK(unsigned char *trama){
@@ -83,14 +86,47 @@ int tftp::formatoACK(unsigned char *trama){
 
 int tftp::formatoERROR(unsigned char *trama){
 
-	int tam = strlen(this->mensaje);
+	int tam = strlen((char *) this->mensaje);
 	trama[0] = 0;
 	trama[1] = 5;
-	trama[2] = (this->mensaje & 0xf0) >> 8;
-	trama[3] = this->mensaje& 0x0f;
-	strcpy(trama+4, this->mensaje);
+	trama[2] = (this->codigoError& 0xf0) >> 8;
+	trama[3] = this->codigoError& 0x0f;
+	strcpy((char *)trama+4,(const char *) this->mensaje);
 	return 4+tam;
 }
+void tftp::setDATA(unsigned char * trama){
+	int b_size = sizeof(trama);
+	this->secuencia = trama [2];
+	this->secuencia <<= 8;
+	this->secuencia += trama[3];
+
+	//memcpy(data.data, buffer+4, b_size-4);
+	for(int  i = 0; i<b_size-4; i++){
+		//printf("%hu ", buffer[i+4]);
+		this->DATA[i] = (unsigned char*)trama[i+4];
+	}
+}
+int tftp::formatoDATA(unsigned char *trama){
+
+	int tam = sizeof(this->DATA);
+	trama[0] = 0;
+	trama[1] = 3;
+	
+	trama[2] = (this->secuencia  >> 8) & 0x00ff;
+	trama[3] = this->secuencia & 0x00ff;
+
+
+	//memcpy(buffer+4, data.data, data_data_len);
+	//printf("Filling with %d\n", data_data_len);
+	for(int  i = 4; i<tam+4; i++){
+		//printf("%hu ", data.data[i-4]);
+		unsigned char *dat = this->DATA[i-4];
+		trama[i] =  reinterpret_cast<unsigned  char>(&dat);
+	}
+	
+	return tam + 4;
+}
+
 int main() {
 	
 	tftp obj1;
