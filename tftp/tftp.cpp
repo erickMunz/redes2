@@ -27,7 +27,7 @@ class tftp
 
 	
 	// printname is not defined inside class defination
-	short getCodigoOP(unsigned char *trama);
+	short getCodigoOP();
     void setCodigoOP(unsigned char* trama);
 	void ACK(unsigned char* trama);
 	void RRQ(unsigned char* trama);
@@ -48,7 +48,7 @@ class tftp
 };
 
 // Definition of printname using scope resolution operator ::
-short tftp::getCodigoOP(unsigned char *trama)
+short tftp::getCodigoOP()
 {
     return this->codigoOP;
 }
@@ -106,6 +106,7 @@ void tftp::setDATA(unsigned char * trama){
 		this->DATA[i] = (unsigned char*)trama[i+4];
 	}
 }
+/*
 int tftp::formatoDATA(unsigned char *trama){
 
 	int tam = sizeof(this->DATA);
@@ -121,15 +122,8 @@ int tftp::formatoDATA(unsigned char *trama){
 	for(int  i = 4; i<tam+4; i++){
 		//printf("%hu ", data.data[i-4]);
 		unsigned char *dat = this->DATA[i-4];
-		trama[i] =  reinterpret_cast<unsigned  char>(&dat);
+		trama[i] =  reinterpret_cast<unsigned  char>(dat);
 	}
 	
 	return tam + 4;
-}
-
-int main() {
-	
-	tftp obj1;
-
-	return 0;
-}
+}*/

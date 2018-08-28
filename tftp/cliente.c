@@ -7,7 +7,6 @@
 #include <string.h>
 #include <arpa/inet.h>
 
-unsigned char mensaje[] = "Primer mensaje\0";
 
 int main(){
 	struct sockaddr_in local,remota;
@@ -35,9 +34,10 @@ int main(){
 			perror("\nExito en bind");
 			memset(&remota,0x00,sizeof(remota));
 			remota.sin_family = AF_INET;
-			remota.sin_port = htons(8000);
-			remota.sin_addr.s_addr = inet_addr("127.0.0.1");
-			
+			remota.sin_port = htons(69);
+			remota.sin_addr.s_addr = inet_addr("8.8.0.14");
+			unsigned char * mensaje [720];
+			funcionLectura(mensaje,"nombreArchivo");
 			tam = sendto(udp_socket,mensaje,20,0,(struct sockaddr*)&remota,sizeof(remota));
 			if (tam == -1){
 				perror("\nError al enviar");
@@ -58,3 +58,10 @@ int main(){
 
 //xhost +si:localuser:root
 }
+void funcionLectura(unsigned char* trama, char * nombreArchivo){
+	trama[0] = 0;
+	trama[1] = 1;
+	strcpy(trama+2, nombreArchivo);
+	strcpy(trama+strlen(nombreArchivo),0x00);
+}
+
