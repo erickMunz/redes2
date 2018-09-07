@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "system_error": "cpp",
-        "tftp.h": "c"
+        "tftp.h": "c",
+        "stdio.h": "c"
     }
 }
