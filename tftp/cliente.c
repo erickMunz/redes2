@@ -122,7 +122,6 @@ int main(int argc, char *argv[]){
 			scanf("%d",&accion);
 			switch(accion){
 				case 1:
-						fflush();
 						printf("Escribe el nombre del archivo \n");
 						scanf("%s",nombre);
 						int tam = peticionLectura(mensaje, nombre);
@@ -203,6 +202,12 @@ int main(int argc, char *argv[]){
 												printf("error al recibir ACK \n");
 											}
 											bytes = fread(datos,1,512,archivo);
+											if(bytes==0){
+											formatoDATA(mensaje,veces,datos,bytes);	
+											if(sendto(udp_socket,mensaje,bytes+4,0,(struct sockaddr*)&remota, tamSock)==-1){
+												printf("Error al enviar DATA\n");
+											}
+											}
 											veces++;
 										}
 										printf("Se envio el archivo con %d numero de secuencias \n",veces);

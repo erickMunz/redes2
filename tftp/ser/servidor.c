@@ -153,7 +153,8 @@ int formatoError(unsigned char *trama, int codigo, unsigned char *mensaje){
             switch(accion){
               case 2:
                   getNombreArchivo(mensaje,nombre);
-                  printf("nombre del archivo2 %s ", nombre);
+                  printf("Peticion escritura \n \n");
+                  printf("nombre del archivo %s \n", nombre);
                   formatoACK(mensaje,0);
                   //int tam = peticionLectura(mensaje, nombre);
                   if(sendto(udp_socket,mensaje,tam,0,(struct sockaddr*)&remota,sizeof(remota)) != -1){
@@ -204,7 +205,8 @@ int formatoError(unsigned char *trama, int codigo, unsigned char *mensaje){
               case 1:
             
                   getNombreArchivo(mensaje,nombre);
-                  printf("nombre del archivo1 %s ", nombre);
+                  printf("Peticion lectura \n \n");
+                  printf("nombre del archivo %s \n", nombre);
                   archivo = fopen(nombre,"rb");
                   if(archivo!=NULL){
                     
@@ -230,6 +232,14 @@ int formatoError(unsigned char *trama, int codigo, unsigned char *mensaje){
                             }
                             bytes = fread(datos,1,512,archivo);
                             veces++;
+                            if(bytes==0){
+                              formatoDATA(mensaje,veces,datos,bytes);	
+                              if(sendto(udp_socket,mensaje,bytes+4,0,(struct sockaddr*)&remota, tamSock)==-1){
+                                printf("Error al enviar DATA\n");
+                              }
+                            }
+                            printf("bytes %d\n", bytes);
+                            printf("veces %d\n", veces);
                           }
                           printf("Se envio el archivo con %d numero de secuencias \n",veces);
                   }
@@ -247,7 +257,7 @@ int formatoError(unsigned char *trama, int codigo, unsigned char *mensaje){
                   printf("DATA");
                   break;
               default: 
-                  printf("no haz puesto una operacion valida");
+                  printf("no haz puesto una operacion valida %d",accion);
                   break;
             }
             
