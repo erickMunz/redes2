@@ -14,6 +14,20 @@
 
 unsigned char dns[5000];
 
+void pptr(int ptr){
+   int sz = dns[ptr];
+   int i;
+   for(i = 1; i<=sz;i++)
+      printf("%c", dns[ptr+i]);
+   if(dns[ptr + sz + 1] == 0x00) return;
+   else if(dns[ptr + sz + 1] == 0xc0){
+     printf(".");
+     pptr(dns[ptr + sz + 2]);
+   }else{
+      printf(".");
+      pptr(ptr + sz + 1);
+   }
+}
 int setID(unsigned char *dns){
     unsigned short int id = ((rand()%(65535)) + 1);
       // dns[0]; id <<= 8;id += dns[1];
@@ -138,22 +152,49 @@ int main(int argc, char const *argv[]){
             int len_res = recvfrom(s2, (char *) dns, sizeof(dns), 0, (struct sockaddr *)&aServidor, lonm);
             if(len_res==-1){
                 printf("\n\n\n\n\n\n\n*********Respuesta del servidor *************");
-                printf("\n* Transaccion       : %hu *", getINT(dns,0));
-                printf("\n* Codigo Operacion  : %hu *", getINT(dns,2));
-                printf("\n* Preguntas         : %hu *", getINT(dns,4));
-                printf("\n* Respuestas RR     : %hu *", getINT(dns,6));
-                printf("\n* Autoridad         : %hu *", getINT(dns,8));
-                printf("\n* Adicional         : %hu *", getINT(dns,10));
-                int i=0,v=12, j= 0;
+                printf("\n* Transaccion       : %hu ", getINT(dns,0));
+                printf("\n* Codigo Operacion  : %hu ", getINT(dns,2));
+                printf("\n* Preguntas         : %hu ", getINT(dns,4));
+                printf("\n* Respuestas RR     : %hu ", getINT(dns,6));
+                printf("\n* Autoridad         : %hu ", getINT(dns,8));
+                printf("\n* Adicional         : %hu \n \n", getINT(dns,10));
+                int i=0,v=12, j= 0, aux = 0;
                 for(i = 0; i<getINT(dns,4);i++){
-                    printf("tam %d", dns[v]);
-                    while(v > 0){
-                        printf("%c", dns[v+j]);
-                        j++;
-                        if(j==dns[v]){
-                            v=dns[v+j];
-                        }
+                    aux= dns[12];
+                    char datos[1024];
+                    j=0;
+                    while(dns[v] != '\0'){
+                        datos[j++] = dns[v++];
+                        //printf("%d \n ", datos[j]);
                     }
+                    j=0;
+                    printf("> nombre : ");
+                    while(aux < strlen(datos)){
+                        printf("%c", datos[j]);
+                        if(j==aux){
+                            printf(".");
+                            j++;
+                            aux+=datos[j]+1;
+                        }
+                        j++;
+                    }
+                    printf("\n > Tipo : %d", getINT(dns,++v));
+                    v++;
+                    printf("\n > clase : %d \n", getINT(dns,++v));
+                }
+                printf("************************\n\n >> Respuestas \n");
+                for(i=0;i<getINT(dns,6);i++){
+                    printf("> Nombre : ");
+                    v++;
+                    if(dns[++v]==0xc0){
+                        pptr(dns[++v]);
+                    }
+                    printf("\n");
+                    v++;
+                    printf("> type %d \n",dns[++v]);
+                    v++;
+                    printf("> class %d \n", dns[++v]);
+                    int ttl = 0;
                 }
             }
             
