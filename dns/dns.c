@@ -112,10 +112,10 @@ int main(int argc, char const *argv[]){
    while(1){
        short int preg, rr, codigo,i;
        printf("Transaccion %d \n", setID(dns));
-       printf("Escribe el codigo de operacion \n ");
+       printf("Escribe el codigo de operacion \n>");
        scanf("%hu", &codigo);
        formatoINT(2,codigo, dns);
-       printf("Escribe el numero de preguntas que haras al servidor \n");
+       printf("Escribe el numero de preguntas que haras al servidor \n>");
        scanf("%hu", &preg); 
        formatoINT(4,preg,dns);
        //answers
@@ -128,17 +128,17 @@ int main(int argc, char const *argv[]){
        for(i=0;i<preg;i++){
            char name[1024];
            fflush( stdout );
-           printf("Nombre = \n");
+           printf("Nombre \n>");
            scanf("%s", name);
            fflush( stdout );
            tam = formatoPreguntas(tam,dns,name);
            short int type;
-           printf("Tipo: \n");
+           printf("Tipo\n>");
            scanf("%hu", &type);
            dns[tam++] = 0;
            dns[tam++] = type;
            short int class;
-           printf("Clase :\n");
+           printf("Clase\n>");
            scanf("%hu", &class);
            dns[tam++] = 0;
            dns[tam++] = class;
@@ -191,10 +191,172 @@ int main(int argc, char const *argv[]){
                     }
                     printf("\n");
                     v++;
-                    printf("> type %d \n",dns[++v]);
+                    int type = dns[++v];
+                    printf("> type :  %d \n",type);
                     v++;
-                    printf("> class %d \n", dns[++v]);
+                    int class = dns[++v];
+                    printf("> class : %d \n", class);
                     int ttl = 0;
+                    for(int j = 3; j >=0; j--){
+                        unsigned char aux = dns[++v];
+                        ttl += (aux<<(8*j));
+                    }
+                    printf("> TTL  %d \n ",ttl);
+                    
+                    int tam = getINT(dns,++v);
+                    
+                    printf("> Tamaño %d \n", tam);
+                    printf("> IP server ");
+                    v++;
+                    if(type == 1){
+                        for(int j = 3; j >=0; j--){
+                        unsigned char aux = dns[++v];
+                        printf("%d", aux);
+                        if(j > 0) printf(".");
+                        else printf("\n");
+                        }
+                    }else if(type == 2){
+                        printf("Name server    = ");
+                        for (int j = 1; j <= tam; ++j){
+                        unsigned char aux = dns[v+j];
+                        if(aux==0x00) break;
+                        else{
+                            if(j!=1)
+                                printf(".");
+                        }
+                        if(aux == 0xc0){
+                            pptr(dns[v+j+1]);
+                            j++;
+                        }else{
+                            int k = 1;
+                            for (; k <= aux; k++)
+                            {
+                                printf("%c", dns[v+j+k]);
+                            }
+                            j+=aux;
+                        }
+
+                        } 
+                        printf("\n\n");
+                        v += tam;
+                    } 
+                }
+                if(getINT(dns,8) >  0)
+                    printf("Authoritative nameservers > \n\n");
+                for (int i = 0; i < getINT(dns,8); ++i){
+                    printf("\nName           = ");
+                    if(dns[++v] == 0xc0){
+                        pptr(dns[++v]);
+                    }
+                    printf("\n");
+                    
+                    unsigned short type = getINT(dns,++v);
+                    printf("Type           = %hi \n", type);
+                    v++;
+                    unsigned short class = getINT(dns,++v);
+                    printf("Class          = %hi \n", class);
+                    unsigned int ttl = 0;
+                    v++;
+                    for(int j = 3; j >=0; j--){
+                        unsigned char aux = dns[++v];
+                        ttl += (aux<<(8*j));
+                    }
+
+                    printf("TTL            = %u \n", ttl);
+                    //v++;
+                    unsigned short data_len = getINT(dns,++v);
+                    printf("Data length    = %hi \n", data_len);
+                    printf("Name server    = ");
+                    v++;
+                        for (int j = 1; j <= data_len; ++j){
+                        unsigned char aux = dns[v+j];
+                        if(aux==0x00) break;
+                        else{
+                            if(j!=1)
+                                printf(".");
+                        }
+                        if(aux == 0xc0){
+                            pptr(dns[v+j+1]);
+                            j++;
+                        }else{
+                            int k = 1;
+                            for (; k <= aux; k++)
+                            {
+                                printf("%c", dns[v+j+k]);
+                            }
+                            j+=aux;
+                        }
+                        } 
+                        printf("\n\n");
+                        v += data_len;
+                }
+                if(getINT(dns,10) > 0)
+                    printf("Additional records > \n\n");
+                for (int i = 0; i < getINT(dns,10); ++i){
+                    printf("\nName           = ");
+                    if(dns[++v] == 0xc0){
+                        pptr(dns[++v]);
+                    }
+                    printf("\n");
+                    unsigned short type = getINT(dns,++v);
+                    printf("Type           = %hi \n", type);
+                    v++;
+                    unsigned short class = getINT(dns,++v);
+                    printf("Class          = %hi \n", class);
+                    unsigned int ttl = 0;
+                    for(int j = 3; j >=0; j--){
+                        unsigned char aux = dns[++v];
+                        ttl += (aux<<(8*j));
+                    }
+
+                    printf("TTL            = %u \n", ttl);
+                    v++;
+                    unsigned short data_len = getINT(dns,++v);
+                    printf("Data length    = %hi \n", data_len);
+                    v++;
+                    if(type == 1){
+                        printf("Address        = ");
+                        for(int j = 3; j >=0; j--){
+                        unsigned char aux = dns[++v];
+                        printf("%i", aux);
+                        if(j > 0) printf(".");
+                        else printf("\n");
+                        }
+                    }else if(type == 2){
+                        printf("server    = ");
+                        for (int j = 1; j <= data_len; ++j){
+                        unsigned char aux = dns[v+j];
+                        if(aux==0x00) break;
+                        else{
+                            if(j!=1)
+                                printf(".");
+                        }
+                        if(aux == 0xc0){
+                            pptr(dns[v+j+1]);
+                            j++;
+                        }else{
+                            int k = 1;
+                            for (; k <= aux; k++){
+                                printf("%c", dns[v+j+k]);
+                            }
+                            j+=aux;
+                        }
+                        } 
+                        printf("\n\n");
+                        v += data_len;
+                    }else if(type == 0x1c){
+                        printf("IPV6    = ");
+                        for (int j = 1; j <= data_len; j+=2){
+                            int k=0;
+                            for(k = 0; k<2; k++){
+                                printf("%02x", dns[v+j+k]);
+                                }
+                            if(j <  15) printf(":");
+                        
+                        }
+                        printf("\n\n");
+                        v += data_len;
+                    }
                 }
             }
             
