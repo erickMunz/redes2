@@ -9,8 +9,48 @@
 #include <unistd.h>
 #include <time.h>
 #include <stdlib.h>
-#define puerto 53
 unsigned char dns[5000];
+
+
+int main(int argc, char const *argv[]){
+    //srand(time(NULL));
+    printf("hola");
+    int s, s2;
+   socklen_t clilen;
+   struct sockaddr_in servidor, aCliente, aServidor, cliente;
+   s  = socket(AF_INET, SOCK_DGRAM, 0);
+   s2 = socket(AF_INET, SOCK_DGRAM, 0);
+   if(s==-1||s2==-1){
+       printf("uno de los sockets valio verga \n");
+   }
+   memset(&servidor, 0x00, sizeof(servidor));
+   //bzero((char *)&servidor, sizeof(servidor));
+   servidor.sin_addr.s_addr = INADDR_ANY;
+   servidor.sin_family = AF_INET;
+   servidor.sin_port = htons(53);
+   if(bind(s2, (struct sockaddr *)&servidor,sizeof(servidor))==-1){
+        printf("error en bind servidor");
+    }
+   clilen = sizeof(aCliente);
+   while(1){
+       printf("hola");
+       short int preg, rr, codigo,i;
+       socklen_t lonm = sizeof(cliente);
+        int len_res = recvfrom(s2, (char *) dns, sizeof(dns), 0, (struct sockaddr *)&cliente, lonm);
+        if(len_res==-1){
+            printf("Llego algo ALV");
+            int v = 12;
+            char datos[1024];
+            int j=0;
+            while(dns[v] != '\0'){
+                        datos[j++] = dns[v++];
+                        printf("%d \n ", datos[j]);
+            }
+        }else{
+            printf("no llego ni vergas");
+        }
+   }
+}
 
 void pptr(int ptr){
    int sz = dns[ptr];
@@ -71,59 +111,4 @@ int formatoPreguntas(int indice, unsigned char*trama, unsigned char *origen){
     }
     trama[indice++] = '\0';
     return indice;
-}
-
-int main(int argc, char const *argv[]){
-    //srand(time(NULL));
-     
-    int s, s2;
-   socklen_t clilen;
-   struct sockaddr_in servidor, aCliente, aServidor, cliente;
-   
-   s  = socket(AF_INET, SOCK_DGRAM, 0);
-   
-   s2 = socket(AF_INET, SOCK_DGRAM, 0);
-   if(s==-1||s2==-1){
-       printf("uno de los sockets valio verga \n");
-   }
-   bzero((char *)&aServidor, sizeof(aServidor));
-   //aServidor= inicializa(puerto,argv[1]);
-   aServidor.sin_family = AF_INET;
-   aServidor.sin_addr.s_addr = inet_addr(argv[1]);
-   aServidor.sin_port = htons(53);
-   bzero((char *)&cliente, sizeof(cliente));
-   //cliente = inicializa(0,"0");
-   cliente.sin_family = AF_INET;
-   cliente.sin_addr.s_addr = INADDR_ANY;
-   /*cuando se utiliza por numero de puerto el 0, el sistema se encarga de asignarle uno */
-   cliente.sin_port = htons(0);
-    if(bind(s2, (struct sockaddr *)&cliente,sizeof(cliente))==-1){
-        printf("error en bind cliente");
-        }
-   /* se asigna una direccion al socket del servidor*/
-   /*bzero((char *)&servidor, sizeof(servidor));
-   servidor=inicializa(puerto,"0");
-   if(bind(s, (struct sockaddr *)&servidor, sizeof(servidor))==-1){
-       printf("error en el bind servidor");
-   }*/
-   clilen = sizeof(aCliente);
-
-   
-   while(1){
-       short int preg, rr, codigo,i;
-       socklen_t lonm = sizeof(aServidor);
-        int len_res = recvfrom(s2, (char *) dns, sizeof(dns), 0, (struct sockaddr *)&aServidor, lonm);
-        if(len_res==-1){
-            printf("Llego algo ALV");
-            int v = 12;
-            char datos[1024];
-            int j=0;
-            while(dns[v] != '\0'){
-                        datos[j++] = dns[v++];
-                        printf("%d \n ", datos[j]);
-            }
-        }else{
-            printf("no llego ni vergas");
-        }
-   }
 }

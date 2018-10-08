@@ -92,7 +92,7 @@ int main(int argc, char const *argv[]){
    //aServidor= inicializa(puerto,argv[1]);
    aServidor.sin_family = AF_INET;
    aServidor.sin_addr.s_addr = inet_addr(argv[1]);
-   aServidor.sin_port = htons(53);
+   aServidor.sin_port = htons(8000);
    bzero((char *)&cliente, sizeof(cliente));
    //cliente = inicializa(0,"0");
    cliente.sin_family = AF_INET;
