@@ -7,7 +7,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 
-unsigned char mensaje[] = "Primer mensaje\0";
+unsigned char mensaje[] = "Primer mensaje";
 
 int main(){
 	struct sockaddr_in local,remota;

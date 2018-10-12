@@ -86,13 +86,13 @@ int main(int argc, char const *argv[]){
    
    s2 = socket(AF_INET, SOCK_DGRAM, 0);
    if(s==-1||s2==-1){
-       printf("uno de los sockets valio verga \n");
+       printf("uno de los sockets valio  \n");
    }
    bzero((char *)&aServidor, sizeof(aServidor));
    //aServidor= inicializa(puerto,argv[1]);
    aServidor.sin_family = AF_INET;
    aServidor.sin_addr.s_addr = inet_addr(argv[1]);
-   aServidor.sin_port = htons(8000);
+   aServidor.sin_port = htons(53);
    bzero((char *)&cliente, sizeof(cliente));
    //cliente = inicializa(0,"0");
    cliente.sin_family = AF_INET;
@@ -182,7 +182,7 @@ int main(int argc, char const *argv[]){
                     v++;
                     printf("\n > clase : %d \n", getINT(dns,++v));
                 }
-                printf("************************\n\n >> Respuestas \n");
+                printf("************************ >> Respuestas \n");
                 for(i=0;i<getINT(dns,6);i++){
                     printf("> Nombre : ");
                     v++;

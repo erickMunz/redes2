@@ -42,7 +42,7 @@ int main(){
 		memset(&local,0x00,sizeof(local)); // para resetear la memoria de la estructura los pone en valor 0x00
 		
 		local.sin_family = AF_INET;  //establecemos la familia del socket
-		local.sin_port = htons(8001); // establecemos puerto aleatorio para el socket
+		local.sin_port = htons(8000); // establecemos puerto aleatorio para el socket
 		local.sin_addr.s_addr = INADDR_ANY; /* inet_addr("0.0.0.0") */  /* Es para establecer la ip*/
 
 		lbind = bind(udp_socket, (struct sockaddr *) &local,sizeof(local));	//Asocia la direccion ip al socket
