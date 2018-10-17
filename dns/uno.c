@@ -7,23 +7,23 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 
-unsigned char dns[5000];
 
 unsigned char dns1[5000];
 unsigned char Lnegra [10][50] = {"www.google.com","www.pornohub.com"};
 
 
 int formatoName (unsigned char *nombre, int aux, unsigned char *dest){
-    int j=0, veces=0;
+    int j=1, veces=0;
     while(aux < strlen(nombre)){
-            dest[j]= nombre[j];
+            dest[j-1]= nombre[j];
             if(j==aux){
                 if(veces<2){
                     j++;
                     aux+=nombre[j]+1;
-                    dest[j]=46;
+                    dest[j-1]=46;
                     veces++;
                 }
+                
         }
         j++;
     }
@@ -31,13 +31,9 @@ int formatoName (unsigned char *nombre, int aux, unsigned char *dest){
 
 int isListaNegra(unsigned char *ip){
     int i;
-    for(i=0;i<strlen(ip);i++){
-        printf("tam ln %d tamip %d \n",strlen(Lnegra[i]),strlen(ip));
-    }
     for(i=0;i<10;i++){
         //printf("lista negra en %d => %s tam %lu : otro %s tam %lu \n",i,Lnegra[i],strlen(Lnegra[i]),ip,strlen(ip));
         if(strcmp(Lnegra[i],ip)==0){
-            printf("Entre ALV \n");
             return 1;
         }
     }
@@ -75,14 +71,14 @@ int main(){
         int lbind = bind(udp_socket, (struct sockaddr*)&servidor, sizeof(servidor)); //Llamada a bind()
         cliente.sin_family = AF_INET;
         cliente.sin_port = htons(0);
-        int i = 12;
        if(lbind==-1){
            printf("error abriendo el puerto \n");
        }else{
            printf("exito en el bind \n");
             while(1){
+                unsigned char dns[5000];
                 unsigned int tam, len = (unsigned int)sizeof(cliente);
-        		
+        		int i= 12;
             	//inet_aton("127.0.0.1", &cliente.sin_addr);
             	if((tam = recvfrom(udp_socket, dns, sizeof(dns), 0, (struct sockaddr*)&cliente, &len)) == -1){
             		perror("Error al recibir\n");
@@ -95,7 +91,7 @@ int main(){
                     formatoName(data, dns[12], nombre);
                     printf("despues %s",nombre);
                     printf("\n");
-                    if(!isListaNegra(data)){
+                    if(isListaNegra(nombre)){
                         printf("IP bloqueada mandando respuesta \n");
                         //opcode
                         int id = getINT(dns,0);
@@ -157,7 +153,7 @@ int main(){
                             printf("Error al enviar \n");
                         }else{
                             printf("si pude enviarlo \n");
-                            int len_res = recvfrom(udp_socket, (char *) dns1, sizeof(dns1), 0, (struct sockaddr *)&Gserv, lonm);
+                            int len_res = recvfrom(udp_socket, (char *) dns1, sizeof(dns1), 0, (struct sockaddr *)&Gserv, &lonm);
                             if(len_res!=-1){
                                 printf("error recibiendo del dns de google \n");
                             }else{
