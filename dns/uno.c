@@ -8,7 +8,6 @@
 #include <netinet/ip.h>
 
 
-unsigned char dns1[5000];
 unsigned char Lnegra [10][50] = {"www.google.com","www.pornohub.com"};
 
 
@@ -77,6 +76,7 @@ int main(){
            printf("exito en el bind \n");
             while(1){
                 unsigned char dns[5000];
+                unsigned char dns1[5000];
                 unsigned int tam, len = (unsigned int)sizeof(cliente);
         		int i= 12;
             	//inet_aton("127.0.0.1", &cliente.sin_addr);
@@ -145,7 +145,8 @@ int main(){
                     }else{
                         printf("IP permitida \n");
                         Gserv.sin_family = AF_INET;
-                        Gserv.sin_addr.s_addr = inet_addr("148.204.103.2");
+                        Gserv.sin_addr.s_addr = inet_addr("8.8.8.8");
+                        //Gserv.sin_addr.s_addr = inet_addr("148.204.103.2");
                         Gserv.sin_port = htons(53);
                         
                         socklen_t lonm = sizeof(Gserv);
@@ -154,17 +155,17 @@ int main(){
                         }else{
                             printf("si pude enviarlo \n");
                             int len_res = recvfrom(udp_socket, (char *) dns1, sizeof(dns1), 0, (struct sockaddr *)&Gserv, &lonm);
-                            if(len_res!=-1){
+                            if(len_res==-1){
                                 printf("error recibiendo del dns de google \n");
                             }else{
                                 printf("enviando al cliente origen \n");
+                                printf("len_res %d \n ", len_res);
                                 socklen_t tcli = sizeof(cliente);
-                                if(sendto(udp_socket,(char *) dns1,sizeof(dns1),0,(struct sockaddr *) &cliente,tcli)==-1){
+                                if(sendto(udp_socket,(char *) dns1,len_res,0,(struct sockaddr *) &cliente,tcli)==-1){
                                     printf("error el enviar el mensaje");
                                 }else{
                                     printf("Se envio correctamente el mensaje al cliente \n");
                                 }
-                                printf("\n \n que verga");
                             }
                         }
                     }
